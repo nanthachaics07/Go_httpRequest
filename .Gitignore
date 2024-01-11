@@ -1,0 +1,10 @@
+tmp
+temp
+cloneTemplate
+storage
+.idea
+.env.yml
+.env.yml.exclude
+**/.DS_Store
+app/*.exe
+config/demo.yml
