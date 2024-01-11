@@ -69,9 +69,10 @@ func testHTML(c *fiber.Ctx) error {
 }
 
 func getENV(c *fiber.Ctx) error {
-	if value, exists := os.LookupEnv("SECRET"); exists {
+	secret := os.Getenv("SECRET")
+	if secret != "" {
 		return c.JSON(fiber.Map{
-			"secret": value,
+			"secret": secret,
 		})
 	}
 	return c.JSON(fiber.Map{
