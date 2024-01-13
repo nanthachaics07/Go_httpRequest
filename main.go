@@ -1,12 +1,23 @@
 package main
 
 import (
+	"GOhttpServer/handler"
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
 )
+
+func checkMiddleware(c *fiber.Ctx) error {
+	start := time.Now().UTC()
+
+	fmt.Printf("URL_Request: %s , Method: %s , Time: %s\n",
+		c.OriginalURL(), c.Method(), start)
+	return c.Next()
+}
 
 func main() {
 
@@ -21,8 +32,13 @@ func main() {
 		Views: engine,
 	})
 
-	booksData := &BooksData{}
+	booksData := handler.BooksData{}
 	booksData.InitializeBooks()
+
+	// Routes
+	app.Post("/login", handler.Login)
+
+	app.Use(checkMiddleware)
 
 	// CRUD routes
 	app.Get("/book", booksData.GetBooks)
@@ -61,11 +77,9 @@ func testHTML(c *fiber.Ctx) error {
 func getENV(c *fiber.Ctx) error {
 	secret := os.Getenv("SECRET")
 	if secret != "" {
-		return c.JSON(fiber.Map{
-			"secret": secret,
-		})
+		secret = "Not Found"
 	}
 	return c.JSON(fiber.Map{
-		"secret": "Not found",
+		"secret": secret,
 	})
 }
