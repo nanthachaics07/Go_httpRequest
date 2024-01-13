@@ -8,15 +8,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Book struct to hold book data
-type Book struct {
-	ID     int    `json:"id"`
-	Title  string `json:"title"`
-	Author string `json:"author"`
-}
-
-var books []Book // Slice to store books
-
 func main() {
 
 	err := godotenv.Load()
@@ -30,16 +21,15 @@ func main() {
 		Views: engine,
 	})
 
-	// Initialize in-memory data
-	books = append(books, Book{ID: 1, Title: "1984", Author: "George Orwell"})
-	books = append(books, Book{ID: 2, Title: "The Great Gatsby", Author: "F. Scott Fitzgerald"})
+	booksData := &BooksData{}
+	booksData.InitializeBooks()
 
 	// CRUD routes
-	app.Get("/book", getBooks)
-	app.Get("/book/:id", getBook)
-	app.Post("/book", createBook)
-	app.Put("/book/:id", updateBook)
-	app.Delete("/book/:id", deleteBook)
+	app.Get("/book", booksData.GetBooks)
+	app.Get("/book/:id", booksData.GetBook)
+	app.Post("/book", booksData.CreateBook)
+	app.Put("/book/:id", booksData.UpdateBook)
+	app.Delete("/book/:id", booksData.DeleteBook)
 
 	app.Post("/upload", uploadFile)
 	app.Get("/viewHTML", testHTML)
