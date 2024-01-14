@@ -31,6 +31,17 @@ func (bd *BooksData) InitializeBooks() {
 	bd.books = append(bd.books, Book{ID: 10, Title: "The Picture of Dorian Gray", Author: "Oscar Wilde"})
 }
 
+// Handler functions
+// getBooks godoc
+// @Summary Get all books
+// @Description Get details of all books
+// @Tags books
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {array} Book
+// @Router /book [get]
+
 func (bd *BooksData) GetBooks(c *fiber.Ctx) error {
 	return c.JSON(bd.books)
 }

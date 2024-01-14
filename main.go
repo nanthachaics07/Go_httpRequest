@@ -7,18 +7,40 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v2"
+	"github.com/golang-jwt/jwt/v4"
+
+	// jwtware "github.com/gofiber/jwt"
+	_ "GOhttpServer/docs" // load generated docs
+
+	"github.com/gofiber/swagger"
 	"github.com/gofiber/template/html/v2"
 	"github.com/joho/godotenv"
 )
 
 func checkMiddleware(c *fiber.Ctx) error {
 	start := time.Now().UTC()
-
 	fmt.Printf("URL_Request: %s , Method: %s , Time: %s\n",
 		c.OriginalURL(), c.Method(), start)
-	return c.Next()
+
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	if claims["role"] == "admin" {
+		return c.Next()
+	} else {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
 }
 
+// @title Book API
+// @description This is a sample server for a book API.
+// @version 1.0
+// @host localhost:8080
+// @BasePath /
+// @schemes http
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 
 	err := godotenv.Load()
@@ -32,14 +54,20 @@ func main() {
 		Views: engine,
 	})
 
+	app.Get("/swagger/*", swagger.HandlerDefault) // Default
+
 	booksData := handler.BooksData{}
 	booksData.InitializeBooks()
 
 	// Routes
 	app.Post("/login", handler.Login)
 
-	app.Use(checkMiddleware)
+	// // JWT Middleware
+	app.Use(jwtware.New(jwtware.Config{
+		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+	}))
 
+	app.Use(checkMiddleware)
 	// CRUD routes
 	app.Get("/book", booksData.GetBooks)
 	app.Get("/book/:id", booksData.GetBook)
