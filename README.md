@@ -1,2 +1,2 @@
-Go HTTPRequest use jwt 
+Go HTTPRequest use jwt gen token
 cr.mikelopster
